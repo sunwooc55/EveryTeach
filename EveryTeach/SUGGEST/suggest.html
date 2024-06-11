@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUGGEST</title>
+    <link rel="stylesheet" href="../mystyle.css">
+    <style>
+        .post {
+            border-top: 1px solid #ccc;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .post h2 {
+            margin: 0;
+            cursor: pointer;
+        }
+        .post p {
+            margin: 5px 0;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .post time {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .writebtn {
+            float: right;
+            width: 100px;
+            height: 50px;
+            font-size: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: left; float: left;">
+        <a href="../index.html">
+            <img src="../images/Logo.jpg" alt="main" style="width:400px; height:100px;">
+        </a>
+    </div>
+    <div style="text-align: center; margin: 0 auto; width: 400px; font-size: 40px; background-color: gray; color: white;">
+        <h1>SUGGEST</h1>
+    </div>
+    <button onclick="location.href='suggest_write.html'" class="writebtn">글쓰기</button>
+    <div id="postList"></div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const postList = document.getElementById('postList');
+        let posts = JSON.parse(localStorage.getItem('SUGGEST')) || [];
+
+        if (posts.length === 0) {
+            postList.innerHTML = '<p>저장된 글이 없습니다.</p>';
+            return;
+        }
+
+        posts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        posts.forEach(post => {
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post';
+
+            const postTitle = document.createElement('h2');
+            const postTitleLink = document.createElement('a');
+            postTitleLink.textContent = post.title;
+            postTitleLink.href = `suggest_post.html?id=${encodeURIComponent(post.title)}`;
+            postTitle.appendChild(postTitleLink);
+
+            const postContent = document.createElement('p');
+            postContent.textContent = post.content;
+
+            const postDate = document.createElement('time');
+            postDate.textContent = `작성일: ${post.date}`;
+
+            postDiv.appendChild(postTitle);
+            postDiv.appendChild(postContent);
+            postDiv.appendChild(postDate);
+
+            postList.insertBefore(postDiv, postList.firstChild);
+        });
+    });
+</script>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOTICE_Post</title>
+    <link rel="stylesheet" href="../mystyle.css">
+    <style>
+        .post {
+            text-align: center;
+            border: 4px solid gray;
+            padding: 20px;
+            margin-bottom: 20px;
+            width: 80%;
+            margin: 0 auto;
+            position: relative;
+        }
+        #postDate {
+            margin: 20px;
+            text-align: right;
+        }
+        #postTitle {
+            border-bottom: 1px solid #bcbcbc;
+            margin: -20px;
+        }
+        .right {
+            float: right;
+        }
+        .comments {
+            border-top: 2px solid #585858;
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+        .comment {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .comment time {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .comment-form textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 10px;
+            border: 1px solid gray;
+            border-radius: 5px;
+        }
+        .comment-form button {
+            width: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-end;
+        }
+        .deletebtn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            width: 80px;
+            height: 30px;
+            font-size: 15px;
+            border-radius: 5px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <a href="../index.html">
+            <img src="../images/Logo.jpg" alt="main" style="width:900px;height:160px;">
+        </a>
+    </div> 
+    <div class="post">
+        <h1 id="postTitle"></h1>
+        <p id="postDate"></p>
+        <div class="right">
+            <button id="downloadBtn">첨부파일 다운로드</button>
+        </div>
+        <br>
+        <p id="postContent"></p>
+        <button class="deletebtn" id="deleteBtn">삭제</button>
+    </div>
+    <div class="comments">
+        <h2>댓글</h2>
+        <div id="commentList"></div>
+        <div class="comment-form">
+            <textarea id="commentText" placeholder="댓글을 입력하세요"></textarea>
+            <button id="commentSubmit">댓글 달기</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const postTitle = decodeURIComponent(urlParams.get('id'));
+
+            const posts = JSON.parse(localStorage.getItem('NOTICE')) || [];
+            const post = posts.find(p => p.title === postTitle);
+
+            if (post) {
+                document.getElementById('postTitle').textContent = post.title;
+                document.getElementById('postContent').textContent = post.content;
+                document.getElementById('postDate').textContent = `작성일: ${post.date}`;
+
+                if (post.file) {
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    downloadBtn.style.display = 'block';
+                    downloadBtn.textContent = `${post.file}`;
+                    
+                    downloadBtn.addEventListener('click', () => {
+                        const link = document.createElement('a');
+                        link.href = `../uploads/${post.file}`;
+                        link.download = post.file;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    });
+                }
+
+                loadComments(postTitle);
+
+                document.getElementById('commentSubmit').addEventListener('click', () => {
+                    const commentText = document.getElementById('commentText').value;
+                    if (commentText) {
+                        addComment(postTitle, commentText);
+                        document.getElementById('commentText').value = '';
+                    }
+                });
+
+                document.getElementById('deleteBtn').addEventListener('click', () => {
+                    if (confirm('정말로 이 글을 삭제하시겠습니까?')) {
+                        const postIndex = posts.findIndex(p => p.title === postTitle);
+                        if (postIndex !== -1) {
+                            posts.splice(postIndex, 1);
+                            localStorage.setItem('NOTICE', JSON.stringify(posts));
+                            alert('글이 삭제되었습니다.');
+                            window.location.href = './notice.html';
+                        }
+                    }
+                });
+            } else {
+                document.getElementById('postTitle').textContent = '게시물을 찾을 수 없습니다.';
+            }
+        });
+
+        function loadComments(postTitle) {
+            const comments = JSON.parse(localStorage.getItem('COMMENTS')) || {};
+            const postComments = comments[postTitle] || [];
+            const commentList = document.getElementById('commentList');
+            commentList.innerHTML = '';
+
+            postComments.forEach(comment => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+
+                const commentContent = document.createElement('p');
+                commentContent.textContent = comment.text;
+
+                const commentDate = document.createElement('time');
+                commentDate.textContent = `작성일: ${comment.date}`;
+
+                commentDiv.appendChild(commentContent);
+                commentDiv.appendChild(commentDate);
+                commentList.appendChild(commentDiv);
+            });
+        }
+
+        function addComment(postTitle, text) {
+            const comments = JSON.parse(localStorage.getItem('COMMENTS')) || {};
+            const postComments = comments[postTitle] || [];
+
+            const date = new Date().toLocaleString();
+            postComments.push({ text, date });
+
+            comments[postTitle] = postComments;
+            localStorage.setItem('COMMENTS', JSON.stringify(comments));
+            loadComments(postTitle);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveryTeach</title>
+    <link rel="stylesheet" href="mystyle.css">
+    <style>
+        #postList {
+            border: 2px solid gray;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        .post {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        .post h2 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .post time {
+            display: block;
+            margin-top: 5px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div style="text-align: center;">
+        <a href="index.html">
+            <img src="./images/Logo.jpg" alt="main" style="width:1000px; height:200px;">
+        </a>
+    </div>  
+    <div class="container1">
+        <a href="https://home.chungwoon.ac.kr/home/index.do">
+            <img src="./images/cwu.JPG" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+        </a>
+        <a href="https://github.com/">
+            <img src="./images/github.JPG" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+        </a>
+        <a href="https://www.google.com/">
+            <img src="./images/google.JPG" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+        </a>
+        <a href="https://naver.com/">
+            <img src="./images/naver.JPG" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+        </a>
+        <a href="https://youtube.com/">
+            <img src="./images/youtube.JPG" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+        </a>
+    </div>
+    <div class="container2">
+        <a href="./CODE/code.html">
+            <img src="./images/code.jpg" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+            <p align="center">CODE</p>
+        </a>
+        <a href="./DESIGN/design.html">
+            <img src="./images/design.JPG" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+            <p align="center">DESIGN</p>
+        </a>
+        <a href="./SUGGEST/suggest.html">
+            <img src="./images/suggest.png" onmouseenter="zoomIn(event)" onmouseleave="zoomOut(event)">
+            <p align="center">SUGGEST</p>
+        </a>
+    </div>
+    <div id="postList">
+        <h1 style="background-color: #9b9b9b;"><a href="./NOTICE/notice.html">NOTICE</a></h1>
+    </div>
+</body>
+
+<script>
+    function zoomIn(event) {
+        event.target.style.transform = "scale(1.2)";
+        event.target.style.zIndex = 1;
+        event.target.style.transition = "all 0.5s";
+    }
+
+    function zoomOut(event) {
+        event.target.style.transform = "scale(1)";
+        event.target.style.zIndex = 0;
+        event.target.style.transition = "all 0.5s";
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const postList = document.getElementById('postList');
+        let posts = JSON.parse(localStorage.getItem('NOTICE')) || [];
+
+        if (posts.length === 0) {
+            postList.innerHTML += '<p>저장된 글이 없습니다.</p>';
+        } else {
+            posts.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const recentPosts = posts.slice(-3);
+
+            recentPosts.forEach(post => {
+                const postDiv = document.createElement('div');
+                postDiv.className = 'post';
+
+                const postTitle = document.createElement('h2');
+                const postTitleLink = document.createElement('a');
+                postTitleLink.textContent = post.title;
+                postTitleLink.href = `./NOTICE/notice.html?id=${encodeURIComponent(post.title)}`;
+                postTitle.appendChild(postTitleLink);
+
+                const postDate = document.createElement('time');
+                postDate.textContent = `작성일: ${post.date}`;
+
+                postDiv.appendChild(postTitle);
+                postDiv.appendChild(postDate);
+
+                postList.appendChild(postDiv);
+            });
+        }
+    });
+</script>
+</html>
